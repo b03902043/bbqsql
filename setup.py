@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+#from setuptools import setup
+from distutils.core import setup
 
 setup(name='BBQSQL',
       version='1.2',
@@ -11,5 +12,5 @@ setup(name='BBQSQL',
       url='http://github.com/neohapsis/bbqsql',
       packages=['bbqsql','bbqsql.lib','bbqsql.menu'],
       scripts=['scripts/bbqsql'],
-      install_requires=['gevent','requests < 1.0','argparse']
+      install_requires=['gevent','requests','argparse']
      )

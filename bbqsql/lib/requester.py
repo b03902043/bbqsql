@@ -3,6 +3,7 @@ from .query import Query
 from bbqsql import utilities
 from bbqsql import settings
 
+import urllib3
 import requests
 import gevent 
 
@@ -103,14 +104,17 @@ class Requester(object):
 
         # all the same prep stuff that grequests.patched does
         # self.request_kwargs['return_response'] = False
-        self.request_kwargs['prefetch'] = True
+        #self.request_kwargs['prefetch'] = True
 
         config = kwargs.get('config', {})
         config.update(safe_mode=True)
 
         kwargs['config'] = config
 
-        self.session = requests.session(*args,**kwargs)
+        self.session = requests.Session()#*args,**kwargs)
+        self.session.verify = False
+        self.session.prefetch = True
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     
     @utilities.debug 
     def make_request(self,value="",case=None,rval=None,debug=False):
@@ -189,6 +193,7 @@ class Requester(object):
 class LooseNumericRequester(Requester):
     def _process_response(self,case,rval,response):
         self.cases.setdefault(case,{'values':[],'rval':rval,'case':case})
+        response.time = response.elapsed.total_seconds()
 
         #get the value from the response
         value = getattr(response,self.comparison_attr)

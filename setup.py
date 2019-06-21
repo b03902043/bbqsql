@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-#from setuptools import setup
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='BBQSQL',
       version='1.2',

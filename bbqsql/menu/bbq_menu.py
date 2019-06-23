@@ -75,7 +75,7 @@ class bbqMenu():
                     tmp_http_config = dict()
                     try:
                         attack_config = RawConfigParser()
-                        self.config_file = [run_config,self.config_file][run_config is '']
+                        self.config_file = run_config or self.config_file
                         attack_config.read(self.config_file)
                     except:
                         pass

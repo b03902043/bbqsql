@@ -37,7 +37,7 @@ class BlindSQLi:
         query               = "row_index=${row_index:1}&character_index=${char_index:1}&character_value=${char_val:0}&comparator=${comparator:>}&sleep=${sleep:0}",\
         comparison_attr     = "size",
         technique           = "binary_search",\
-        concurrency         = 50,**kwargs):
+        concurrency         = 50, **kwargs):
         '''
         Initialize the BlindSQLi with query, comparison_attr, technique, and any Requests
         parameters you would like (url,method,headers,cookies). For more details on these,
@@ -119,8 +119,8 @@ class BlindSQLi:
             elif type(kwargs[key]) == dict:
                 for k in kwargs[key]:
                     if type(k) == str and re.match(u'\$\{.+\}',k):
-                        kwargs[key][Query(k,encoder=quote)] = kwargs[key][k]
-                        del(kwargs[key][k])
+                        kwargs[key][Query(k,encoder=quote)] = kwargs[key].pop(k)
+                        #del(kwargs[key][k])
                     if type(kwargs[key][k]) == str and re.match(u'\$\{.+\}',kwargs[key][k]):
                         kwargs[key][k] = Quote(kwargs[key][k],encoder=quote)
 
@@ -135,17 +135,18 @@ class BlindSQLi:
         self.query.set_option('char_index','1')
         self.query.set_option('row_index','0')
 
-        print "\n"*100
+        if settings.PRETTY_PRINT:
+            print "\n"*100
         try:
             #setup some base values
             #true
             for i in xrange(settings.TRUTH_BASE_REQUESTS):
-                self.requester.make_request(value=self.query.render(),case='true',rval=True,debug=(i==settings.TRUTH_BASE_REQUESTS-1))
+                self.requester.make_request(value=self.query.render(),case='true',rval=True,debug=(i==settings.TRUTH_BASE_REQUESTS-1) if not settings.QUIET else False)
 
             #false
             self.query.set_option('comparator',opp_cmp)
             for i in xrange(settings.TRUTH_BASE_REQUESTS):
-                self.requester.make_request(value=self.query.render(),case='false',rval=False,debug=(i==settings.TRUTH_BASE_REQUESTS-1))
+                self.requester.make_request(value=self.query.render(),case='false',rval=False,debug=(i==settings.TRUTH_BASE_REQUESTS-1) if not settings.QUIET else False)
         except utilities.TrueFalseRangeOverlap:
             self.error = "The response values for true and false are overlapping. Check your configuration.\n"
             self.error += "here are the cases we have collected:\n"
@@ -178,7 +179,7 @@ class BlindSQLi:
             
             #run our technique
             if not settings.QUIET and not settings.PRETTY_PRINT: print "starting technique"
-            techgl = tech.run(concurrency=self.concurrency,row_len=5)
+            techgl = tech.run(concurrency=self.concurrency,row_len=1)
 
             if settings.PRETTY_PRINT and not settings.QUIET:
                 #start printing the tables

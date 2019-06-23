@@ -21,9 +21,9 @@ def requests_pre_hook(request):
     return request
 
 @utilities.debug 
-def requests_response_hook(response):
+def requests_response_hook(response, *args, **kwargs):
     #hooks for the requests module to add some attributes
-    response.time = time() - response.request.start_time
+    response.time = response.elapsed.total_seconds()
     if hasattr(response.content,'__len__'): 
         response.size = len(response.content)
     else: 
@@ -69,13 +69,13 @@ class Requester(object):
         # make sure the hooks are lists, not just methods
         kwargs.setdefault('hooks',{})
 
-        for key in ['pre_request','response']:
+        for key in ['response']:
             kwargs['hooks'].setdefault(key,[])
 
             if hasattr(kwargs['hooks'][key],'__call__'):
                 kwargs['hooks'][key] = [kwargs['hooks'][key]]
 
-        kwargs['hooks']['pre_request'].append(requests_pre_hook)
+        #kwargs['hooks']['pre_request'].append(requests_pre_hook)
 
         kwargs['hooks']['response'].append(requests_response_hook)
 
@@ -115,6 +115,11 @@ class Requester(object):
         self.session.verify = False
         self.session.prefetch = True
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        self.session.hooks['response'] = kwargs['hooks']['response']
+        if 'cookies' in kwargs:
+            for k, v in kwargs['cookies'].items():
+                self.session.cookies[k] = v
     
     @utilities.debug 
     def make_request(self,value="",case=None,rval=None,debug=False):
@@ -193,7 +198,6 @@ class Requester(object):
 class LooseNumericRequester(Requester):
     def _process_response(self,case,rval,response):
         self.cases.setdefault(case,{'values':[],'rval':rval,'case':case})
-        response.time = response.elapsed.total_seconds()
 
         #get the value from the response
         value = getattr(response,self.comparison_attr)

@@ -87,15 +87,12 @@ class Query(object):
         This compiles the queries options and the original query string into a string.
         See the class documentation for an example.
         '''
-        section = self.q_string.split("${")
-        output = section[0]
-        if len(section) > 1:
-            for section in section[1:]:
-                split = section.split('}')
-                left = split[0]
-                #in case there happens to be a rogue } in our query
-                right = '}'.join(split[1:])
-                ident = left.split(':')[0]
+        sections = self.q_string.split("${")
+        output = sections[0]
+        if len(sections) > 1:
+            for section in sections[1:]:
+                left, right = section.split('}', 1)
+                ident = left[:left.find(':')] if ':' in left else left
                 val = self.options[ident]
                 if self.encoder != None:
                     val = self.encoder(val)

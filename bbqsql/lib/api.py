@@ -114,7 +114,7 @@ class BlindSQLi:
         # Convert a string or dict to Query if it matches the necessary syntax.
         for key in kwargs:
             if type(kwargs[key]) == str and re.match(u'.*\$\{.+\}.*', kwargs[key]):
-                kwargs[key] = Query(kwargs[key]), encoder=quote)
+                kwargs[key] = Query(kwargs[key], encoder=quote)
             
             elif type(kwargs[key]) == dict:
                 for k in kwargs[key]:

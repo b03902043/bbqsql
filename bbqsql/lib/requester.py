@@ -88,19 +88,15 @@ class Requester(object):
         #pull out any other Query objects
         self.query_objects = {}
         for elt in [q for q in kwargs if isinstance(kwargs[q],Query)]:
-            self.request_kwargs[elt] = kwargs[elt]
-            del(kwargs[elt])
+            self.request_kwargs[elt] = kwargs.pop(elt)
 
         # pull out the url, method and data
         if 'method' in kwargs:
-            self.request_kwargs['method'] = kwargs['method']
-            del(kwargs['method'])
+            self.request_kwargs['method'] = kwargs.pop('method')
         if 'url' in kwargs:
-            self.request_kwargs['url'] = kwargs['url']
-            del(kwargs['url'])
+            self.request_kwargs['url'] = kwargs.pop('url')
         if 'data' in kwargs:
-            self.request_kwargs['data'] = kwargs['data']
-            del(kwargs['data'])
+            self.request_kwargs['data'] = kwargs.pop('data')
 
         # all the same prep stuff that grequests.patched does
         # self.request_kwargs['return_response'] = False

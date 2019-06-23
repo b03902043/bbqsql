@@ -109,20 +109,19 @@ class BlindSQLi:
             quit()
 
         # convert query string to Query
-        self.query = Query(query)
+        self.query = Query(query) if not isinstance(query, Query) else query
 
         # Convert a string or dict to Query if it matches the necessary syntax.
         for key in kwargs:
-            if type(kwargs[key]) == str and re.match(u'.*\$\{.+\}.*',kwargs[key]):
-                kwargs[key] = Query(kwargs[key],encoder=quote)
+            if type(kwargs[key]) == str and re.match(u'.*\$\{.+\}.*', kwargs[key]):
+                kwargs[key] = Query(kwargs[key]), encoder=quote)
             
             elif type(kwargs[key]) == dict:
                 for k in kwargs[key]:
                     if type(k) == str and re.match(u'\$\{.+\}',k):
-                        kwargs[key][Query(k,encoder=quote)] = kwargs[key].pop(k)
-                        #del(kwargs[key][k])
-                    if type(kwargs[key][k]) == str and re.match(u'\$\{.+\}',kwargs[key][k]):
-                        kwargs[key][k] = Quote(kwargs[key][k],encoder=quote)
+                        kwargs[key][Query(k, encoder=quote)] = kwargs[key].pop(k)
+                    if type(kwargs[key][k]) == str and re.match(u'\$\{.+\}', kwargs[key][k]):
+                        kwargs[key][k] = Quote(kwargs[key][k], encoder=quote)
 
         #build a Requester object. You can pass this any args that you would pass to requests.Request
         self.requester = requester_type(comparison_attr=comparison_attr, **kwargs)

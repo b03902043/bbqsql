@@ -13,6 +13,7 @@ except ImportError:
 from gevent.queue import Queue
 from gevent.pool import Pool
 
+import string
 from time import time
 from copy import copy
 
@@ -450,7 +451,8 @@ class FrequencyCharacter(BlindCharacter):
 
         while not success and len(chars_to_try):
             if not previous_char_finished and self.previous_char and self.previous_char == "success":
-                chars_to_try = filter(lambda c: c not in tried,diagraphs[self.previous_char.char_val])
+                chars_to_try = filter(lambda c: c not in tried, diagraphs.get(self.previous_char.char_val, \
+                        list(string.punctuation + ''.join(characters_by_freq) + string.digits)))
                 previous_char_finished = True
 
             self.char_val = chars_to_try.pop(0)
